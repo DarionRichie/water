@@ -1,17 +1,45 @@
 /*
  * @Author: your name
  * @Date: 2021-03-28 23:33:10
- * @LastEditTime: 2021-04-03 18:49:07
+ * @LastEditTime: 2021-04-10 04:53:09
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: /water_contains/routes/user.js
  */
 var express = require('express');
 var router = express.Router();
+var axios = require("axios");
+const { json } = require('express');
+var url = require('url');
+const { ObjectId } = require('bson');
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
+    //尝试对应的百度云的只能问答
     res.send({ code: 200 })
+});
+
+router.get('/getOne_Orderinfo',function(req,res,next){
+    var parseObj = url.parse(req.url, true);
+    console.log(parseObj.query.id + '_dddddd');
+    var MongoClient = require('mongodb').MongoClient;
+    var _url = "mongodb://121.4.18.254:27017/";
+    MongoClient.connect(_url, function (err, db) {
+        if (err) {
+            console.log(err)
+        }
+        if (err) throw err;
+        var dbo = db.db("water");
+        // var myobj = { name: "lizhitao", url: "www.runoob" };
+        // console.log(req.body)
+        dbo.collection("orderInfo").find({_id:ObjectId(parseObj.query.id)}).toArray(function (err, result) {
+            if (err) throw err;
+            console.log(result.length);
+            res.send(result);
+            db.close();
+        });
+    }); 
+    // res.send({code:200})
 });
 router.post('/add', function (req, res, next) {
     console.log(req.body);
@@ -58,10 +86,11 @@ router.post('/add', function (req, res, next) {
 });
 
 
+
+
 router.get('/OrderList',function(req,res,next){
     var MongoClient = require('mongodb').MongoClient;
     var url = "mongodb://121.4.18.254:27017/";
-
     MongoClient.connect(url, function (err, db) {
         if (err) {
             console.log(err)
@@ -76,7 +105,28 @@ router.get('/OrderList',function(req,res,next){
             res.send(result);
             db.close();
         });
-
+    }); 
+})
+router.get('/OrderList_onepep',function(req,res,next){
+    // console.log(req.body)
+    var parseObj = url.parse(req.url, true);
+    // console.log(parseObj.query.id + '_dddddd');
+    var MongoClient = require('mongodb').MongoClient;
+    var _url = "mongodb://121.4.18.254:27017/";
+    MongoClient.connect(_url, function (err, db) {
+        if (err) {
+            console.log(err)  
+        }
+        if (err) throw err;
+        var dbo = db.db("water");
+        // var myobj = { name: "lizhitao", url: "www.runoob" };
+        // console.log(req.body)
+        dbo.collection("orderInfo").find({off_pep:parseObj.query.id}).toArray(function (err, result) {
+            if (err) throw err;
+            console.log(result.length);
+            res.send(result);
+            db.close();
+        });
     }); 
 })
 router.post('/login', function (req, res, next) {
